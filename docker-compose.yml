@@ -8,11 +8,7 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./conf/proxy/odoo.conf:/config/nginx/proxy-confs/odoo.subdomain.conf
-      - ./conf/proxy/pgadmin.conf:/config/nginx/proxy-confs/pgadmin.subdomain.conf
-      - ./conf/proxy/portainer.conf:/config/nginx/proxy-confs/portainer.subdomain.conf
-      - ./conf/proxy/duplicati.conf:/config/nginx/proxy-confs/duplicati.subdomain.conf
-      - ./conf/htpasswd:/config/nginx/.htpasswd:rw
+      - /opt/tdlib:/usr/local/lib
     #ports:
     #  - 443:443
     #  - 80:80 #optional
