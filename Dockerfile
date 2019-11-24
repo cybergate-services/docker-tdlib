@@ -1,4 +1,5 @@
 FROM alpine:3.10 as builder
+LABEL maintainer "Chinthaka Deshapriya <chinthaka@cybergate.lk>"
 RUN apk add --no-cache \
     gperf \
     alpine-sdk \
