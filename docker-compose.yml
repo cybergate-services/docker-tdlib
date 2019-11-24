@@ -1,36 +1,19 @@
 version: '2'
 services:
  
-  letsencrypt:
-    image: cybergatelabs/letsencrypt
-    container_name: letsencrypt
-    hostname: letsencrypt
+  tdlib:
+    image: cybergatelabs/tdlib
+    container_name: tdlib
+    hostname: tdlib
     cap_add:
       - NET_ADMIN
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - URL=${URL}
-      - SUBDOMAINS=${SUBDOMAINS},
-      - EXTRA_DOMAINS=${EXTRA_DOMAINS}
-      - VALIDATION=${VALIDATION}
-      - EMAIL=${EMAIL}
-      - DHLEVEL=${DHLEVEL}
-      - ONLY_SUBDOMAINS=${ONLY_SUBDOMAINS}
-      - STAGING=${STAGING}
-      
-    networks:
-      cybererp-network:
-        aliases:
-          - letsencrypt
     volumes:
       - ./conf/proxy/odoo.conf:/config/nginx/proxy-confs/odoo.subdomain.conf
       - ./conf/proxy/pgadmin.conf:/config/nginx/proxy-confs/pgadmin.subdomain.conf
       - ./conf/proxy/portainer.conf:/config/nginx/proxy-confs/portainer.subdomain.conf
       - ./conf/proxy/duplicati.conf:/config/nginx/proxy-confs/duplicati.subdomain.conf
       - ./conf/htpasswd:/config/nginx/.htpasswd:rw
-    ports:
-      - 443:443
-      - 80:80 #optional
+    #ports:
+    #  - 443:443
+    #  - 80:80 #optional
     restart: always
