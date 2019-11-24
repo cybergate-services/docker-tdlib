@@ -1,31 +1,44 @@
-FROM alpine:3.10 as builder
-LABEL maintainer "Chinthaka Deshapriya <chinthaka@cybergate.lk>"
-RUN apk add --no-cache \
-    gperf \
-    alpine-sdk \
-    openssl-dev \
-    git \
-    cmake \
-    zlib-dev \
-    linux-headers
+FROM debian:10-slim
 
-WORKDIR /tmp/_build_tdlib/
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN git clone https://github.com/tdlib/td.git /tmp/_build_tdlib/
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends apt-utils dialog 2>&1 \        
+    #
+    # Install locales
+    && apt-get install -y locales git \
+    #
+    # Install deps. to build TDLib (Telegram Database library)
+    && apt-get install -y make zlib1g-dev libssl-dev gperf php cmake clang libc++-dev libc++abi-dev \
+    #
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/* \
+    #
+    # Set locale
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
-RUN mkdir build
-WORKDIR /tmp/_build_tdlib/build/
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=
 
-RUN cmake -DCMAKE_BUILD_TYPE=Release ..
-RUN cmake --build .
-RUN make install
+ENV LANG en_US.utf8
 
-FROM alpine:3.10
+RUN git clone https://github.com/tdlib/td.git \
+    && cd td \
+    && rm -rf build \
+    && mkdir build \
+    && cd build \
+    && export CXXFLAGS="-stdlib=libc++" \
+    && CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=../tdlib .. \
+    && cmake --build . --target prepare_cross_compiling \
+    && cd .. \
+    && php SplitSource.php \
+    && cd build \
+    && cmake --build . --target install \
+    && cd .. \
+    && php SplitSource.php --undo \
+    && cd .. 
 
-COPY --from=builder /usr/local/lib/libtd* /usr/local/lib/
-
-RUN apk add --no-cache \
-    openssl-dev \
-    git \
-    cmake \
-    zlib-dev
+CMD ["cp -L /td/tdlib/lib/libtdjson.so /libtdjson"]
