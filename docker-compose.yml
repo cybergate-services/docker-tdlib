@@ -5,10 +5,8 @@ services:
     image: cybergatelabs/tdlib
     container_name: tdlib
     hostname: tdlib
-    cap_add:
-      - NET_ADMIN
     volumes:
-      - /opt/tdlib:/usr/local/lib
+      - /opt/tdlib/:/usr/local/lib/
     #ports:
     #  - 443:443
     #  - 80:80 #optional
